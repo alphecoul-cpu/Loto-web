@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block titre %}Résultats CI{% endblock %}
+{% block contenu %}
+<h2>🇨🇮 Loto Bonheur — Derniers résultats</h2>
+<div class="avert">Les boules Win sont les numéros gagnants, les Machine sont les boules complémentaires.</div>
+{% for t in tirages %}
+<div class="card">
+  <strong>{{ t.date }}</strong><br>
+  <span>Win :</span>
+  {% for n in t.win %}<span class="boule win">{{ '%02d' % n }}</span>{% endfor %}
+  <br>
+  <span>Machine :</span>
+  {% for n in t.mac %}<span class="boule mac">{{ '%02d' % n }}</span>{% endfor %}
+</div>
+{% else %}
+<p>Aucun tirage enregistré. <a href="/saisie">Saisir un tirage</a></p>
+{% endfor %}
+{% endblock %}
