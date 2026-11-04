@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block titre %}Accueil{% endblock %}
+{% block contenu %}
+<div class="avert">⚠️ Les statistiques décrivent le passé. Aucune méthode ne peut prédire un tirage futur.</div>
+<div class="card">
+  <h2>Bienvenue</h2>
+  <p>Cette application analyse les tirages du <strong>Loto Bonheur (Côte d'Ivoire)</strong> et du <strong>Ghana NLA</strong>.</p>
+  <ul>
+    <li>🇨🇮 Côte d'Ivoire : {{ nb_ci }} tirages enregistrés — <a href="/ci">voir</a></li>
+    <li>🇬🇭 Ghana : {{ nb_gh }} tirages enregistrés — <a href="/gh">voir</a></li>
+  </ul>
+</div>
+<div class="card">
+  <h3>Que pouvez-vous faire ?</h3>
+  <ul>
+    <li>Consulter les derniers résultats</li>
+    <li>Voir les numéros chauds/froids et la fréquence</li>
+    <li>Saisir un nouveau tirage</li>
+    <li>Rechercher un schéma dans l'historique</li>
+  </ul>
+</div>
+{% endblock %}
