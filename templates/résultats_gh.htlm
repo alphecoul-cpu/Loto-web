@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block titre %}Résultats GH{% endblock %}
+{% block contenu %}
+<h2>🇬🇭 Ghana NLA — Derniers résultats</h2>
+<form method="get" action="/gh">
+  <label>Jeu :
+    <select name="jeu" onchange="this.form.submit()">
+      <option value="">Tous</option>
+      {% for j in jeux %}
+      <option value="{{ j }}" {% if j == jeu_selectionne %}selected{% endif %}>{{ j }}</option>
+      {% endfor %}
+    </select>
+  </label>
+</form>
+{% for t in tirages %}
+<div class="card">
+  <strong>{{ t.date }} — {{ t.jeu }}</strong><br>
+  <span>Win :</span>
+  {% for n in t.win %}<span class="boule win">{{ '%02d' % n }}</span>{% endfor %}
+  <br>
+  <span>Machine :</span>
+  {% for n in t.mac %}<span class="boule mac">{{ '%02d' % n }}</span>{% endfor %}
+</div>
+{% else %}
+<p>Aucun tirage enregistré. <a href="/saisie">Saisir un tirage</a></p>
+{% endfor %}
+{% endblock %}
