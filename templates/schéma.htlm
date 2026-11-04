@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block titre %}Schéma{% endblock %}
+{% block contenu %}
+<h2>🔍 Rechercher un schéma (5 numéros Win)</h2>
+<div class="avert">Analyse rétrospective uniquement. Ne prédit rien.</div>
+<form method="post" action="/schema" class="card">
+  <label>Numéros Win (espacés) : <input name="numeros" placeholder="4 23 45 67 89" required></label><br>
+  <label>Seuil (numéros en commun) :
+    <select name="seuil">
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+    </select>
+  </label><br>
+  <button type="submit">Rechercher</button>
+</form>
+
+{% if resultat %}
+<div class="card">
+  <h3>{{ resultat.nb }} correspondance(s) trouvée(s)</h3>
+  {% for c in resultat.correspondances %}
+    <div style="border-bottom:1px solid #eee; padding:8px 0;">
+      <strong>{{ c.date }}</strong> — {{ c.communs }} numéros en commun<br>
+      Win :
+      {% for n in c.win %}<span class="boule win">{{ '%02d' % n }}</span>{% endfor %}
+      <br>Machine :
+      {% for n in c.mac %}<span class="boule mac">{{ '%02d' % n }}</span>{% endfor %}
+      {% if c.suivant %}
+        <br><em>Tirage suivant ({{ c.suivant.date }}) :</em>
+        Win : {% for n in c.suivant.win %}<span class="boule win">{{ '%02d' % n }}</span>{% endfor %}
+        Machine : {% for n in c.suivant.mac %}<span class="boule mac">{{ '%02d' % n }}</span>{% endfor %}
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
