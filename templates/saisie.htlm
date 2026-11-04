@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block titre %}Saisir{% endblock %}
+{% block contenu %}
+<h2>➕ Saisir un tirage</h2>
+{% if message %}<div class="card" style="background:#e8f5e9; color:#2e7d32;">{{ message }}</div>{% endif %}
+{% if erreur %}<div class="card" style="background:#ffebee; color:#c62828;">{{ erreur }}</div>{% endif %}
+
+<form method="post" action="/saisie" class="card">
+  <label>Pays :
+    <select name="pays" id="pays" onchange="document.getElementById('jeu_row').style.display = this.value === 'gh' ? 'block' : 'none';">
+      <option value="ci">🇨🇮 Côte d'Ivoire</option>
+      <option value="gh">🇬🇭 Ghana</option>
+    </select>
+  </label><br>
+
+  <label>Date (YYYY-MM-DD) : <input type="date" name="date" required></label><br>
+
+  <div id="jeu_row" style="display:none;">
+    <label>Jeu :
+      <select name="jeu">
+        {% for j in jeux %}<option value="{{ j }}">{{ j }}</option>{% endfor %}
+      </select>
+    </label><br>
+  </div>
+
+  <label>Win (5 numéros espacés) : <input name="win" placeholder="4 23 45 67 89" required></label><br>
+  <label>Machine (5 numéros espacés) : <input name="mac" placeholder="12 34 56 78 90" required></label><br>
+
+  <button type="submit">Enregistrer</button>
+</form>
+
+<div class="card">
+  <strong>Format d'import CSV</strong><br>
+  CI : <code>date,win1,win2,win3,win4,win5,mac1,mac2,mac3,mac4,mac5</code><br>
+  GH : <code>date,jeu,win1,win2,win3,win4,win5,mac1,mac2,mac3,mac4,mac5</code>
+</div>
+{% endblock %}
