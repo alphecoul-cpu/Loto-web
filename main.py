@@ -8,48 +8,54 @@ from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
+# ---------- Config ----------
 BASE = Path(__file__).parent
 DATA = BASE / "data"
 DATA.mkdir(exist_ok=True)
 CI_FICHIER = DATA / "ci_tirages.csv"
 GH_FICHIER = DATA / "gh_tirages.csv"
 
-CI_COLONNES = ["date","win1","win2","win3","win4","win5","mac1","mac2","mac3","mac4","mac5"]
-GH_COLONNES = ["date","jeu","win1","win2","win3","win4","win5","mac1","mac2","mac3","mac4","mac5"]
-JEUX_GH = ["Monday Special","Lucky Tuesday","Midweek","Friday Bonanza","Saturday","VAG"]
+CI_COLONNES = ["date", "win1", "win2", "win3", "win4", "win5",
+               "mac1", "mac2", "mac3", "mac4", "mac5"]
+GH_COLONNES = ["date", "jeu", "win1", "win2", "win3", "win4", "win5",
+               "mac1", "mac2", "mac3", "mac4", "mac5"]
+JEUX_GH = ["Monday Special", "Lucky Tuesday", "Midweek",
+           "Friday Bonanza", "Saturday", "VAG"]
 
 app = FastAPI(title="Loto Analyse")
 templates = Jinja2Templates(directory=str(BASE / "templates"))
 
 
-def init_fichier(path: Path, colonnes):
+# ---------- Utilitaires ----------
+def init_fichier(path: Path, colonnes: list[str]):
     if not path.exists():
         with open(path, "w", newline="") as f:
             csv.writer(f).writerow(colonnes)
 
 
-def charger_ci():
+def charger_ci() -> pd.DataFrame:
     init_fichier(CI_FICHIER, CI_COLONNES)
     df = pd.read_csv(CI_FICHIER, parse_dates=["date"])
     return df.sort_values("date", ascending=False).reset_index(drop=True)
 
 
-def charger_gh():
+def charger_gh() -> pd.DataFrame:
     init_fichier(GH_FICHIER, GH_COLONNES)
     df = pd.read_csv(GH_FICHIER, parse_dates=["date"])
     return df.sort_values("date", ascending=False).reset_index(drop=True)
 
 
-def freq_par_colonnes(df, cols):
+def freq_par_colonnes(df: pd.DataFrame, cols: list[str]) -> dict[int, int]:
     cnt = Counter(df[cols].values.flatten().tolist())
     return {n: cnt.get(n, 0) for n in range(1, 91)}
 
 
-def chauds_froids(freq, top=10):
+def chauds_froids(freq: dict[int, int], top: int = 10):
     tries = sorted(freq.items(), key=lambda x: (-x[1], x[0]))
     return tries[:top], tries[-top:][::-1]
 
 
+# ---------- Pages ----------
 @app.get("/healthz", include_in_schema=False)
 def healthz():
     return {"status": "ok"}
@@ -68,8 +74,8 @@ def page_ci(request: Request, limit: int = 30):
     df = charger_ci().head(limit)
     tirages = [
         {"date": r["date"].strftime("%Y-%m-%d"),
-         "win": [int(r[f"win{k}"]) for k in range(1,6)],
-         "mac": [int(r[f"mac{k}"]) for k in range(1,6)]}
+         "win": [int(r[f"win{k}"]) for k in range(1, 6)],
+         "mac": [int(r[f"mac{k}"]) for k in range(1, 6)]}
         for _, r in df.iterrows()
     ]
     return templates.TemplateResponse(request, "resultats_ci.html", {
@@ -85,12 +91,14 @@ def page_gh(request: Request, jeu: str | None = None, limit: int = 30):
     df = df.head(limit)
     tirages = [
         {"date": r["date"].strftime("%Y-%m-%d"), "jeu": r["jeu"],
-         "win": [int(r[f"win{k}"]) for k in range(1,6)],
-         "mac": [int(r[f"mac{k}"]) for k in range(1,6)]}
+         "win": [int(r[f"win{k}"]) for k in range(1, 6)],
+         "mac": [int(r[f"mac{k}"]) for k in range(1, 6)]}
         for _, r in df.iterrows()
     ]
     return templates.TemplateResponse(request, "resultats_gh.html", {
-        "tirages": tirages, "jeux": JEUX_GH, "jeu_selectionne": jeu,
+        "tirages": tirages,
+        "jeux": JEUX_GH,
+        "jeu_selectionne": jeu,
     })
 
 
@@ -98,31 +106,41 @@ def page_gh(request: Request, jeu: str | None = None, limit: int = 30):
 def page_stats(request: Request, pays: str = "ci"):
     df = charger_ci() if pays == "ci" else charger_gh()
     label = "Côte d'Ivoire - Loto Bonheur" if pays == "ci" else "Ghana - NLA"
-    cols_win = ["win1","win2","win3","win4","win5"]
-    cols_mac = ["mac1","mac2","mac3","mac4","mac5"]
+    cols_win = ["win1", "win2", "win3", "win4", "win5"]
+    cols_mac = ["mac1", "mac2", "mac3", "mac4", "mac5"]
     fw = freq_par_colonnes(df, cols_win)
     fm = freq_par_colonnes(df, cols_mac)
     cw, frw = chauds_froids(fw)
     cm, frm = chauds_froids(fm)
     return templates.TemplateResponse(request, "stats.html", {
-        "pays": pays, "label": label, "nb": len(df),
-        "freq_win": fw, "freq_mac": fm,
-        "chauds_win": cw, "froids_win": frw,
-        "chauds_mac": cm, "froids_mac": frm,
+        "pays": pays,
+        "label": label,
+        "nb": len(df),
+        "freq_win": fw,
+        "freq_mac": fm,
+        "chauds_win": cw,
+        "froids_win": frw,
+        "chauds_mac": cm,
+        "froids_mac": frm,
     })
 
 
 @app.get("/saisie", response_class=HTMLResponse)
 def page_saisie(request: Request, message: str | None = None, erreur: str | None = None):
     return templates.TemplateResponse(request, "saisie.html", {
-        "jeux": JEUX_GH, "message": message, "erreur": erreur,
+        "jeux": JEUX_GH,
+        "message": message,
+        "erreur": erreur,
     })
 
 
 @app.post("/saisie", response_class=HTMLResponse)
 def post_saisie(
-    pays: str = Form(...), date: str = Form(...),
-    jeu: str = Form(""), win: str = Form(...), mac: str = Form(...),
+    pays: str = Form(...),
+    date: str = Form(...),
+    jeu: str = Form(""),
+    win: str = Form(...),
+    mac: str = Form(...),
 ):
     try:
         datetime.strptime(date, "%Y-%m-%d")
@@ -167,14 +185,15 @@ def post_schema(request: Request, numeros: str = Form(...), seuil: int = Form(2)
             raise ValueError("5 numéros distincts entre 1 et 90")
     except ValueError as e:
         return templates.TemplateResponse(request, "schema.html", {
-            "resultat": None, "erreur": str(e),
+            "resultat": None,
+            "erreur": str(e),
         })
 
     df = charger_ci()
     schema_set = set(schema)
     correspondances = []
     for i, row in df.iterrows():
-        win_set = {int(row[f"win{k}"]) for k in range(1,6)}
+        win_set = {int(row[f"win{k}"]) for k in range(1, 6)}
         communs = len(schema_set & win_set)
         if communs >= seuil:
             suivant = None
@@ -182,19 +201,21 @@ def post_schema(request: Request, numeros: str = Form(...), seuil: int = Form(2)
                 s = df.iloc[i + 1]
                 suivant = {
                     "date": s["date"].strftime("%Y-%m-%d"),
-                    "win": [int(s[f"win{k}"]) for k in range(1,6)],
-                    "mac": [int(s[f"mac{k}"]) for k in range(1,6)],
+                    "win": [int(s[f"win{k}"]) for k in range(1, 6)],
+                    "mac": [int(s[f"mac{k}"]) for k in range(1, 6)],
                 }
             correspondances.append({
                 "date": row["date"].strftime("%Y-%m-%d"),
-                "win": [int(row[f"win{k}"]) for k in range(1,6)],
-                "mac": [int(row[f"mac{k}"]) for k in range(1,6)],
-                "communs": communs, "suivant": suivant,
+                "win": [int(row[f"win{k}"]) for k in range(1, 6)],
+                "mac": [int(row[f"mac{k}"]) for k in range(1, 6)],
+                "communs": communs,
+                "suivant": suivant,
             })
 
     return templates.TemplateResponse(request, "schema.html", {
         "resultat": {
-            "schema": sorted(schema), "seuil": seuil,
+            "schema": sorted(schema),
+            "seuil": seuil,
             "nb": len(correspondances),
             "correspondances": correspondances[:30],
         },
