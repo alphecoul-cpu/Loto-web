@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titre %}Loto Analyse{% endblock %}</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; background: #f5f5f7; color: #222; }
+    header { background: #1a237e; color: white; padding: 12px 20px; }
+    header h1 { margin: 0; font-size: 20px; }
+    nav { background: #283593; padding: 8px 20px; }
+    nav a { color: white; text-decoration: none; margin-right: 16px; font-size: 14px; }
+    nav a:hover { text-decoration: underline; }
+    main { max-width: 900px; margin: 20px auto; padding: 0 16px; }
+    .card { background: white; border-radius: 8px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+    .boule { display: inline-block; width: 34px; height: 34px; line-height: 34px; border-radius: 50%; text-align: center; color: white; font-weight: bold; margin: 2px; }
+    .win { background: #2e7d32; }
+    .mac { background: #546e7a; }
+    .avert { background: #fff8e1; border-left: 4px solid #ffb300; padding: 8px 12px; font-size: 13px; margin-bottom: 12px; }
+    input, select, button { padding: 8px; margin: 4px 0; font-size: 14px; }
+    button { background: #1a237e; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #283593; }
+    .grille { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin: 8px 0; }
+    .grille div { font-size: 10px; text-align: center; }
+    .bar { background: #1a237e; height: 60px; width: 100%; display: inline-block; vertical-align: bottom; }
+  </style>
+</head>
+<body>
+  <header><h1>🎰 Loto Analyse</h1></header>
+  <nav>
+    <a href="/">Accueil</a>
+    <a href="/ci">🇨🇮 Loto Bonheur</a>
+    <a href="/gh">🇬🇭 Ghana NLA</a>
+    <a href="/stats">📊 Statistiques</a>
+    <a href="/saisie">➕ Saisir</a>
+    <a href="/schema">🔍 Schéma</a>
+  </nav>
+  <main>
+    {% block contenu %}{% endblock %}
+  </main>
+</body>
+</html>
