@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block titre %}Statistiques{% endblock %}
+{% block contenu %}
+<h2>📊 Statistiques — {{ label }}</h2>
+<div class="avert">⚠️ Ces statistiques décrivent le passé, elles ne prédisent pas l'avenir.</div>
+<p>Tirages analysés : <strong>{{ nb }}</strong></p>
+
+<form method="get" action="/stats">
+  <select name="pays" onchange="this.form.submit()">
+    <option value="ci" {% if pays == 'ci' %}selected{% endif %}>🇨🇮 Côte d'Ivoire</option>
+    <option value="gh" {% if pays == 'gh' %}selected{% endif %}>🇬🇭 Ghana</option>
+  </select>
+</form>
+
+<div class="card">
+  <h3>🔥 Win — Numéros chauds</h3>
+  {% for n, f in chauds_win %}<span class="boule win">{{ '%02d' % n }}</span> ({{ f }}) {% endfor %}
+  <h3>❄️ Win — Numéros froids</h3>
+  {% for n, f in froids_win %}<span class="boule win">{{ '%02d' % n }}</span> ({{ f }}) {% endfor %}
+</div>
+
+<div class="card">
+  <h3>🔥 Machine — Numéros chauds</h3>
+  {% for n, f in chauds_mac %}<span class="boule mac">{{ '%02d' % n }}</span> ({{ f }}) {% endfor %}
+  <h3>❄️ Machine — Numéros froids</h3>
+  {% for n, f in froids_mac %}<span class="boule mac">{{ '%02d' % n }}</span> ({{ f }}) {% endfor %}
+</div>
+
+<div class="card">
+  <h3>Fréquence Win (1–90)</h3>
+  <div class="grille">
+    {% for n, f in freq_win.items() %}
+      <div>
+        <div class="bar" style="height: {{ (f * 12) + 2 }}px;"></div>
+        {{ n }}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="card">
+  <h3>Fréquence Machine (1–90)</h3>
+  <div class="grille">
+    {% for n, f in freq_mac.items() %}
+      <div>
+        <div class="bar" style="height: {{ (f * 12) + 2 }}px; background:#546e7a;"></div>
+        {{ n }}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
